@@ -1,0 +1,17 @@
+name: Version Advancement
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - "**"
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  version-advancement:
+    uses: hydn-co/build-tools/.github/workflows/collector-version-advancement.yml@main
