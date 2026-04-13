@@ -8,4 +8,7 @@ permissions:
 
 jobs:
   release:
+    name: Release
+    permissions:
+      contents: write
     uses: hydn-co/build-tools/.github/workflows/collector-release.yml@main
