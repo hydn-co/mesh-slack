@@ -1,4 +1,4 @@
-package slack
+package collectors
 
 import (
 	"context"
