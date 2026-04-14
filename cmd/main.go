@@ -16,7 +16,7 @@ func WithManifest() *runner.Manifest {
 		"slack",
 		"",
 		"Slack",
-		"A mesh integration for Slack.",
+		"Mesh integration with Slack",
 	)
 
 	// Register Collectors
