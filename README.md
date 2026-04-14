@@ -22,6 +22,29 @@ Collects channels from Slack workspaces and emits them as catalog entities in th
 
 Posts messages to Slack channels based on catalog events.
 
+## Slack app setup
+
+All features require a Slack bot token (`xoxb-...`).
+
+1. Go to [api.slack.com/apps](https://api.slack.com/apps) and click **Create New App → From scratch**
+2. Name the app and select your workspace
+3. Under **OAuth & Permissions → Scopes → Bot Token Scopes**, add the required scopes for the features you intend to use:
+   - `chat:write` — post messages to channels
+   - `channels:read` — validate public channel access
+   - `groups:read` — validate private channel access
+   - `users:read` — collect workspace users
+4. Click **Install to Workspace** at the top of the **OAuth & Permissions** page and authorize the app
+5. Copy the **Bot User OAuth Token** shown after installation
+
+The credential payload expected by all features:
+
+```json
+{"token": "xoxb-your-token-here"}
+```
+
+> **Note:** The bot must be invited to any channel before it can post or read from it.
+> Use `/invite @your-app-name` in the target channel.
+
 ## Requirements
 
 - Go 1.25+
