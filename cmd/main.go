@@ -13,7 +13,7 @@ func main() {
 
 func WithManifest() *runner.Manifest {
 	manifest := runner.CreateManifest(
-		"slack",
+		"mesh-slack",
 		"",
 		"Slack",
 		"Mesh integration with Slack",
