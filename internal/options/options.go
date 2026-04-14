@@ -54,14 +54,7 @@ func (o *SlackUsersCollectorOptions) GetRequirements() []string {
 }
 
 // SlackChannelsCollectorOptions configures the Slack channels collector.
-type SlackChannelsCollectorOptions struct {
-	// IncludeArchived optionally filters to include or exclude archived channels.
-	IncludeArchived *bool `json:"include_archived"`
-	// IncludePrivate optionally filters to include or exclude private channels.
-	IncludePrivate *bool `json:"include_private"`
-	// MaxResults optionally limits the number of channels collected.
-	MaxResults *int64 `json:"max_results"`
-}
+type SlackChannelsCollectorOptions struct{}
 
 func (o *SlackChannelsCollectorOptions) GetDiscriminator() string {
 	return "mesh://slack/channels_collector_options"
