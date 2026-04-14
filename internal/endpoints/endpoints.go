@@ -5,4 +5,6 @@ const (
 	SlackConversationsMembers = "https://slack.com/api/conversations.members"
 	SlackConversationsInfo    = "https://slack.com/api/conversations.info"
 	SlackChatPostMessage      = "https://slack.com/api/chat.postMessage"
+	SlackUsersList            = "https://slack.com/api/users.list"
+	SlackUsersConversations   = "https://slack.com/api/users.conversations"
 )

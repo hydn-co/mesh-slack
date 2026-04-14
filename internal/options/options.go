@@ -32,14 +32,7 @@ func (o *SlackChannelMessagePostActionOptions) GetRequirements() []string {
 }
 
 // SlackUsersCollectorOptions configures the Slack users collector.
-type SlackUsersCollectorOptions struct {
-	// IncludeWorkspaceUser optionally filters to include or exclude the workspace user.
-	IncludeWorkspaceUser *bool `json:"include_workspace_user"`
-	// IncludeDisabledUsers optionally filters to include or exclude disabled users.
-	IncludeDisabledUsers *bool `json:"include_disabled_users"`
-	// MaxResults optionally limits the number of users collected.
-	MaxResults *int64 `json:"max_results"`
-}
+type SlackUsersCollectorOptions struct{}
 
 func (o *SlackUsersCollectorOptions) GetDiscriminator() string {
 	return "mesh://slack/users_collector_options"
