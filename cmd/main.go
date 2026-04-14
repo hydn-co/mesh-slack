@@ -2,8 +2,9 @@ package main
 
 import (
 	"github.com/hydn-co/mesh-sdk/pkg/runner"
+	"github.com/hydn-co/mesh-slack/internal/actions"
 	"github.com/hydn-co/mesh-slack/internal/collectors"
-	"github.com/hydn-co/mesh-slack/internal/provisioners"
+	"github.com/hydn-co/mesh-slack/internal/options"
 )
 
 func main() {
@@ -18,24 +19,36 @@ func WithManifest() *runner.Manifest {
 		"A mesh integration for Slack.",
 	)
 
+	// Register Collectors
 	manifest.RegisterFeature(
-		"slack_channel_message_collector",
-		"Slack Channel Message Collector",
-		"Collects messages from Slack channels and emits them as catalog entities.",
-		runner.Schema[*collectors.SlackChannelMessageCollectorOptions](),
-		runner.GetRequirements[*collectors.SlackChannelMessageCollectorOptions](),
+		"slack_users_collector",
+		"Slack Users Collector",
+		"Collects users from Slack workspaces and emits them as catalog entities.",
+		runner.Schema[*collectors.SlackUsersCollectorOptions](),
+		runner.GetRequirements[*collectors.SlackUsersCollectorOptions](),
 		runner.APIKeyCredential,
-		runner.Factory[*collectors.SlackChannelMessageCollectorOptions](collectors.NewSlackChannelMessageCollector),
+		runner.Factory(collectors.NewSlackUsersCollector),
 	)
 
 	manifest.RegisterFeature(
-		"slack_channel_message_post_provisioner",
-		"Slack Channel Message Post Provisioner",
-		"Posts messages to Slack channels based on catalog events.",
-		runner.Schema[*provisioners.SlackChannelMessagePostProvisionerOptions](),
-		runner.GetRequirements[*provisioners.SlackChannelMessagePostProvisionerOptions](),
+		"slack_channels_collector",
+		"Slack Channels Collector",
+		"Collects channels from Slack workspaces and emits them as catalog entities.",
+		runner.Schema[*collectors.SlackChannelsCollectorOptions](),
+		runner.GetRequirements[*collectors.SlackChannelsCollectorOptions](),
 		runner.APIKeyCredential,
-		runner.Factory[*provisioners.SlackChannelMessagePostProvisionerOptions](provisioners.NewSlackChannelMessagePostProvisioner),
+		runner.Factory(collectors.NewSlackChannelsCollector),
+	)
+
+	// Register Actions
+	manifest.RegisterFeature(
+		"slack_channel_message_post_action",
+		"Slack Channel Message Post Action",
+		"Posts messages to Slack channels based on catalog events.",
+		runner.Schema[*options.SlackChannelMessagePostActionOptions](),
+		runner.GetRequirements[*options.SlackChannelMessagePostActionOptions](),
+		runner.APIKeyCredential,
+		runner.Factory(actions.NewSlackChannelMessagePostAction),
 	)
 
 	return manifest

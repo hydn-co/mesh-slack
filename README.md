@@ -6,12 +6,19 @@ emit catalog entities.
 
 ## Collectors
 
-### `slack_channel_message_collector`
+### `slack_users_collector`
 
-Collects messages from Slack channels and emits them as catalog entities in the
+Collects users from Slack workspaces and emits them as catalog entities in the
 `activity` space.
 
-### `slack_channel_message_post_provisioner`
+### `slack_channels_collector`
+
+Collects channels from Slack workspaces and emits them as catalog entities in the
+`activity` space.
+
+## Actions
+
+### `slack_channel_message_post_action`
 
 Posts messages to Slack channels based on catalog events.
 
