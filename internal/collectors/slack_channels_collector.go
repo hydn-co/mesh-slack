@@ -57,7 +57,6 @@ func (c *SlackChannelsCollector) Start(ctx context.Context) error {
 	}
 
 	var collectedChannels []channels.SlackChannel
-	channelMembers := make(map[string][]string)
 	channelEnum := channels.ChannelEnumerator(ctx, c.token)
 	if err := enumerators.ForEach(channelEnum, func(channel channels.SlackChannel) error {
 		if err := slackapi.EnsureContextActive(ctx); err != nil {
@@ -65,18 +64,6 @@ func (c *SlackChannelsCollector) Start(ctx context.Context) error {
 		}
 
 		collectedChannels = append(collectedChannels, channel)
-		memberEnum := channels.MemberEnumerator(ctx, c.token, channel.ID)
-		if err := enumerators.ForEach(memberEnum, func(memberID string) error {
-			if err := slackapi.EnsureContextActive(ctx); err != nil {
-				return err
-			}
-
-			channelMembers[channel.ID] = append(channelMembers[channel.ID], memberID)
-			return nil
-		}); err != nil {
-			return fmt.Errorf("failed to list members for channel %s: %w", channel.ID, err)
-		}
-
 		return nil
 	}); err != nil {
 		return fmt.Errorf("failed to enumerate channels: %w", err)
@@ -94,24 +81,6 @@ func (c *SlackChannelsCollector) Start(ctx context.Context) error {
 
 		if err := c.Emit(ctx, entity); err != nil {
 			return fmt.Errorf("failed to emit channel %s: %w", channel.ID, err)
-		}
-	}
-
-	for _, channel := range collectedChannels {
-		for _, memberID := range channelMembers[channel.ID] {
-			if err := slackapi.EnsureContextActive(ctx); err != nil {
-				return err
-			}
-
-			entity := &entities.ChannelAccount{
-				Metadata:   types.EntityMetadata{Space: spaces.ChannelAccounts},
-				ChannelRef: channel.ID,
-				AccountRef: memberID,
-			}
-
-			if err := c.Emit(ctx, entity); err != nil {
-				return fmt.Errorf("failed to emit channel account %s/%s: %w", channel.ID, memberID, err)
-			}
 		}
 	}
 
