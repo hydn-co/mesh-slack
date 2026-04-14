@@ -24,8 +24,8 @@ func WithManifest() *runner.Manifest {
 		"slack_users_collector",
 		"Slack Users Collector",
 		"Collects users from Slack workspaces and emits them as catalog entities.",
-		runner.Schema[*collectors.SlackUsersCollectorOptions](),
-		runner.GetRequirements[*collectors.SlackUsersCollectorOptions](),
+		runner.Schema[*options.SlackUsersCollectorOptions](),
+		runner.GetRequirements[*options.SlackUsersCollectorOptions](),
 		runner.APIKeyCredential,
 		runner.Factory(collectors.NewSlackUsersCollector),
 	)
@@ -34,8 +34,8 @@ func WithManifest() *runner.Manifest {
 		"slack_channels_collector",
 		"Slack Channels Collector",
 		"Collects channels from Slack workspaces and emits them as catalog entities.",
-		runner.Schema[*collectors.SlackChannelsCollectorOptions](),
-		runner.GetRequirements[*collectors.SlackChannelsCollectorOptions](),
+		runner.Schema[*options.SlackChannelsCollectorOptions](),
+		runner.GetRequirements[*options.SlackChannelsCollectorOptions](),
 		runner.APIKeyCredential,
 		runner.Factory(collectors.NewSlackChannelsCollector),
 	)

@@ -10,6 +10,7 @@ import (
 	"github.com/hydn-co/mesh-sdk/pkg/runner"
 	"github.com/hydn-co/mesh-slack/internal/channels"
 	"github.com/hydn-co/mesh-slack/internal/credentials"
+	"github.com/hydn-co/mesh-slack/internal/helpers"
 	"github.com/hydn-co/mesh-slack/internal/options"
 	slackapi "github.com/hydn-co/mesh-slack/internal/slack_api"
 )
@@ -68,7 +69,7 @@ func (p *SlackChannelMessagePostAction) Start(ctx context.Context) error {
 		return err
 	}
 
-	if err := p.checkInitialized(); err != nil {
+	if err := helpers.CheckInitialized(p.initialized); err != nil {
 		return err
 	}
 
@@ -86,7 +87,7 @@ func (p *SlackChannelMessagePostAction) Stop(ctx context.Context) error {
 		return err
 	}
 
-	if err := p.checkInitialized(); err != nil {
+	if err := helpers.CheckInitialized(p.initialized); err != nil {
 		return err
 	}
 
@@ -117,12 +118,4 @@ func verifyMessage(text string) (string, error) {
 	}
 
 	return trimmed, nil
-}
-
-func (p *SlackChannelMessagePostAction) checkInitialized() error {
-	if !p.initialized {
-		return fmt.Errorf("action not initialized; call Init first")
-	}
-
-	return nil
 }
