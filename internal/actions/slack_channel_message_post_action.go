@@ -78,7 +78,8 @@ func (p *SlackChannelMessagePostAction) Start(ctx context.Context) error {
 		return fmt.Errorf("channel_id is required")
 	}
 
-	return channels.PostMessage(ctx, p.token, opts.ChannelID, opts.Message)
+	_, err := channels.PostMessage(ctx, p.token, opts.ChannelID, opts.Message)
+	return err
 }
 
 // Stop halts event processing and releases resources.
