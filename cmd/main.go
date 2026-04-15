@@ -31,6 +31,7 @@ func WithManifest() *runner.Manifest {
 		runner.FeatureTypeCollector,
 		new(options.SlackUsersCollectorOptions),
 		nil,
+		runner.FeatureResumeBehaviorNone,
 		runner.APIKeyCredential,
 		runner.Factory(collectors.NewSlackUsersCollector),
 	); err != nil {
@@ -45,6 +46,7 @@ func WithManifest() *runner.Manifest {
 		runner.FeatureTypeCollector,
 		new(options.SlackChannelsCollectorOptions),
 		nil,
+		runner.FeatureResumeBehaviorNone,
 		runner.APIKeyCredential,
 		runner.Factory(collectors.NewSlackChannelsCollector),
 	); err != nil {
@@ -60,13 +62,14 @@ func WithManifest() *runner.Manifest {
 		runner.FeatureTypeAction,
 		new(options.SlackChannelMessagePostActionOptions),
 		new(payloads.SlackChannelMessagePostPayload),
+		runner.FeatureResumeBehaviorNone,
 		runner.APIKeyCredential,
 		runner.Factory(actions.NewSlackChannelMessagePostAction),
 	); err != nil {
 		log.Fatal(err)
 	}
 
-	err := manifest.Validate(); if err != nil {
+	if err := manifest.Validate(); err != nil {
 		log.Fatal(err)
 	}
 
