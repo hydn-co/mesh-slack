@@ -66,5 +66,9 @@ func WithManifest() *runner.Manifest {
 		log.Fatal(err)
 	}
 
+	err := manifest.Validate(); if err != nil {
+		log.Fatal(err)
+	}
+
 	return manifest
 }
