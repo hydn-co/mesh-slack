@@ -24,29 +24,43 @@ func newTestAction(opts *options.SlackChannelMessagePostActionOptions, p *payloa
 	return &SlackChannelMessagePostAction{TypedFeatureContext: ctx}
 }
 
-func TestShouldRejectMissingMessagePayload(t *testing.T) {
+func TestShouldRejectInitWhenChannelMessagePayloadMissing(t *testing.T) {
+	// Arrange
 	action := newTestAction(&options.SlackChannelMessagePostActionOptions{ChannelID: "C123"}, nil)
 
+	// Act
 	err := action.Init(context.Background())
+
+	// Assert
 	if err == nil || err.Error() != "message payload is required" {
 		t.Fatalf("expected missing payload error, got %v", err)
 	}
 }
 
-func TestShouldRejectEmptyMessagePayload(t *testing.T) {
+func TestShouldRejectInitWhenChannelMessageIsEmpty(t *testing.T) {
+	// Arrange
 	action := newTestAction(
 		&options.SlackChannelMessagePostActionOptions{ChannelID: "C123"},
 		&payloads.SlackChannelMessagePostPayload{Message: "   "},
 	)
 
+	// Act
 	err := action.Init(context.Background())
+
+	// Assert
 	if err == nil || err.Error() != "message cannot be empty" {
 		t.Fatalf("expected empty message error, got %v", err)
 	}
 }
 
-func TestShouldVerifyMessageTrimsWhitespace(t *testing.T) {
-	got, err := verifyMessage("  hello slack  ")
+func TestShouldTrimMessageWhenWhitespacePresent(t *testing.T) {
+	// Arrange
+	input := "  hello slack  "
+
+	// Act
+	got, err := verifyMessage(input)
+
+	// Assert
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -55,19 +69,27 @@ func TestShouldVerifyMessageTrimsWhitespace(t *testing.T) {
 	}
 }
 
-func TestShouldVerifyMessageRejectsEmpty(t *testing.T) {
+func TestShouldRejectMessageWhenEmpty(t *testing.T) {
+	// Act
 	_, err := verifyMessage("")
+
+	// Assert
 	if err == nil || err.Error() != "message cannot be empty" {
 		t.Fatalf("expected empty error, got %v", err)
 	}
 }
 
-func TestShouldVerifyMessageRejectsTooLong(t *testing.T) {
+func TestShouldRejectMessageWhenTooLong(t *testing.T) {
+	// Arrange
 	long := make([]byte, 4001)
 	for i := range long {
 		long[i] = 'a'
 	}
+
+	// Act
 	_, err := verifyMessage(string(long))
+
+	// Assert
 	if err == nil {
 		t.Fatal("expected too-long error")
 	}

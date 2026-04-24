@@ -69,6 +69,21 @@ func WithManifest() *runner.Manifest {
 		log.Fatal(err)
 	}
 
+	if err := manifest.RegisterFeature(
+		"slack_user_message_post_action",
+		"Slack User Message Post Action",
+		"Posts a direct message to a Slack user based on catalog events.",
+		false,
+		runner.FeatureTypeAction,
+		new(options.SlackUserMessagePostActionOptions),
+		new(payloads.SlackChannelMessagePostPayload),
+		runner.FeatureResumeBehaviorNone,
+		runner.APIKeyCredential,
+		runner.Factory(actions.NewSlackUserMessagePostAction),
+	); err != nil {
+		log.Fatal(err)
+	}
+
 	if err := manifest.Validate(); err != nil {
 		log.Fatal(err)
 	}

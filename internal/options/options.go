@@ -9,6 +9,7 @@ func init() {
 	polymorphic.RegisterType[SlackUsersCollectorOptions]()
 	polymorphic.RegisterType[SlackChannelsCollectorOptions]()
 	polymorphic.RegisterType[SlackChannelMessagePostActionOptions]()
+	polymorphic.RegisterType[SlackUserMessagePostActionOptions]()
 }
 
 // SlackChannelMessagePostActionOptions configures the Slack channel message post action.
@@ -26,6 +27,25 @@ func (o *SlackChannelMessagePostActionOptions) GetSpaces() []spaces.Space {
 }
 
 func (o *SlackChannelMessagePostActionOptions) GetRequirements() []string {
+	return []string{"slack"}
+}
+
+// SlackUserMessagePostActionOptions configures the Slack user DM message post action.
+type SlackUserMessagePostActionOptions struct {
+	// Emails contains one to eight recipient email addresses. A single email
+	// opens a 1:1 DM; two to eight open a group DM (MPIM).
+	Emails []string `json:"emails" binding:"required"`
+}
+
+func (o *SlackUserMessagePostActionOptions) GetDiscriminator() string {
+	return "mesh://slack/user_message_post_action_options"
+}
+
+func (o *SlackUserMessagePostActionOptions) GetSpaces() []spaces.Space {
+	return []spaces.Space{spaces.Activity}
+}
+
+func (o *SlackUserMessagePostActionOptions) GetRequirements() []string {
 	return []string{"slack"}
 }
 
