@@ -20,13 +20,13 @@ import (
 // SlackUsersCollector collects users from Slack workspaces and emits them as
 // catalog entities.
 type SlackUsersCollector struct {
-	*connector.TypedFeatureContext[*options.SlackUsersCollectorOptions]
+	*connector.TypedFeatureContext[*options.SlackUsersCollectorOptions, *connector.NoPayload]
 	token       string
 	initialized bool
 }
 
 // NewSlackUsersCollector constructs a SlackUsersCollector.
-func NewSlackUsersCollector(ctx *connector.TypedFeatureContext[*options.SlackUsersCollectorOptions]) runner.Feature {
+func NewSlackUsersCollector(ctx *connector.TypedFeatureContext[*options.SlackUsersCollectorOptions, *connector.NoPayload]) runner.Feature {
 	return &SlackUsersCollector{TypedFeatureContext: ctx}
 }
 

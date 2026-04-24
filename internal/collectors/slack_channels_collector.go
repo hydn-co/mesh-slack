@@ -20,13 +20,13 @@ import (
 // SlackChannelsCollector collects channels from Slack workspaces and emits them
 // as catalog entities.
 type SlackChannelsCollector struct {
-	*connector.TypedFeatureContext[*options.SlackChannelsCollectorOptions]
+	*connector.TypedFeatureContext[*options.SlackChannelsCollectorOptions, *connector.NoPayload]
 	token       string
 	initialized bool
 }
 
 // NewSlackChannelsCollector constructs a SlackChannelsCollector.
-func NewSlackChannelsCollector(ctx *connector.TypedFeatureContext[*options.SlackChannelsCollectorOptions]) runner.Feature {
+func NewSlackChannelsCollector(ctx *connector.TypedFeatureContext[*options.SlackChannelsCollectorOptions, *connector.NoPayload]) runner.Feature {
 	return &SlackChannelsCollector{TypedFeatureContext: ctx}
 }
 

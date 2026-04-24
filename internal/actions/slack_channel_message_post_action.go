@@ -12,18 +12,20 @@ import (
 	"github.com/hydn-co/mesh-slack/internal/credentials"
 	"github.com/hydn-co/mesh-slack/internal/helpers"
 	"github.com/hydn-co/mesh-slack/internal/options"
+	"github.com/hydn-co/mesh-slack/internal/payloads"
 	slackapi "github.com/hydn-co/mesh-slack/internal/slack_api"
 )
 
 // SlackChannelMessagePostAction posts messages to Slack channels.
 type SlackChannelMessagePostAction struct {
-	*connector.TypedFeatureContext[*options.SlackChannelMessagePostActionOptions]
+	*connector.TypedFeatureContext[*options.SlackChannelMessagePostActionOptions, *payloads.SlackChannelMessagePostPayload]
 	token       string
+	message     string
 	initialized bool
 }
 
 // NewSlackChannelMessagePostAction constructs a SlackChannelMessagePostAction.
-func NewSlackChannelMessagePostAction(ctx *connector.TypedFeatureContext[*options.SlackChannelMessagePostActionOptions]) runner.Feature {
+func NewSlackChannelMessagePostAction(ctx *connector.TypedFeatureContext[*options.SlackChannelMessagePostActionOptions, *payloads.SlackChannelMessagePostPayload]) runner.Feature {
 	return &SlackChannelMessagePostAction{TypedFeatureContext: ctx}
 }
 
@@ -38,7 +40,11 @@ func (p *SlackChannelMessagePostAction) Init(ctx context.Context) error {
 		return fmt.Errorf("channel_id is required")
 	}
 
-	message, err := verifyMessage(opts.Message)
+	payload := p.GetPayload()
+	if payload == nil {
+		return fmt.Errorf("message payload is required")
+	}
+	message, err := verifyMessage(payload.Message)
 	if err != nil {
 		return err
 	}
@@ -56,8 +62,8 @@ func (p *SlackChannelMessagePostAction) Init(ctx context.Context) error {
 		return fmt.Errorf("channel validation failed: %w", err)
 	}
 
-	opts.Message = message
 	p.token = token
+	p.message = message
 	p.initialized = true
 
 	return nil
@@ -78,7 +84,7 @@ func (p *SlackChannelMessagePostAction) Start(ctx context.Context) error {
 		return fmt.Errorf("channel_id is required")
 	}
 
-	_, err := channels.PostMessage(ctx, p.token, opts.ChannelID, opts.Message)
+	_, err := channels.PostMessage(ctx, p.token, opts.ChannelID, p.message)
 	return err
 }
 
@@ -94,6 +100,7 @@ func (p *SlackChannelMessagePostAction) Stop(ctx context.Context) error {
 
 	p.initialized = false
 	p.token = ""
+	p.message = ""
 
 	return nil
 }

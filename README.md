@@ -20,7 +20,7 @@ Collects channels from Slack workspaces and emits them as catalog entities in th
 
 ### `slack_channel_message_post_action`
 
-Posts messages to Slack channels based on catalog events.
+Posts messages to Slack channels. Configure the target channel in feature options and supply the message body as the runtime action payload.
 
 ## Slack app setup
 
