@@ -48,6 +48,10 @@ func FindUserIDByEmail(ctx context.Context, token, email string) (string, error)
 // ResolveUserIDsByEmails resolves multiple Slack user IDs in a single paginated
 // scan of the workspace member list. Returns an error if any email is not found.
 func ResolveUserIDsByEmails(ctx context.Context, token string, emails []string) ([]string, error) {
+	if len(emails) == 0 {
+		return []string{}, nil
+	}
+
 	if err := slackapi.EnsureContextActive(ctx); err != nil {
 		return nil, err
 	}

@@ -117,8 +117,9 @@ func verifyMessage(text string) (string, error) {
 		return "", fmt.Errorf("message cannot be empty")
 	}
 
-	if len(trimmed) > 4000 {
-		return "", fmt.Errorf("message exceeds maximum length of 4000 characters (got %d)", len(trimmed))
+	charCount := utf8.RuneCountInString(trimmed)
+	if charCount > 4000 {
+		return "", fmt.Errorf("message exceeds maximum length of 4000 characters (got %d)", charCount)
 	}
 
 	if !utf8.ValidString(trimmed) {

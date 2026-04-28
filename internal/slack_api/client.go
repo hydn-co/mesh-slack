@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
-	"maps"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -97,10 +96,7 @@ func Do(req *http.Request, response any) error {
 			return fmt.Errorf("API request failed: %w", err)
 		}
 
-		body, closeErr, readErr := readResponseBody(req.Context(), resp)
-		if closeErr != nil {
-			slog.WarnContext(req.Context(), "failed to close response body", slog.Any("error", closeErr))
-		}
+		body, readErr := readResponseBody(req.Context(), resp)
 		if readErr != nil {
 			return readErr
 		}
@@ -179,18 +175,26 @@ func doRequestAttempt(req *http.Request, attempt int) (*http.Response, error) {
 	return http.DefaultClient.Do(req)
 }
 
-func readResponseBody(ctx context.Context, resp *http.Response) ([]byte, error, error) {
+func readResponseBody(ctx context.Context, resp *http.Response) ([]byte, error) {
+	if resp == nil {
+		return nil, fmt.Errorf("response is nil")
+	}
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			slog.WarnContext(ctx, "failed to close response body", slog.Any("error", err))
+		}
+	}()
+
 	if err := EnsureContextActive(ctx); err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	body, err := io.ReadAll(resp.Body)
-	closeErr := resp.Body.Close()
 	if err != nil {
-		return nil, closeErr, fmt.Errorf("failed to read API response: %w", err)
+		return nil, fmt.Errorf("failed to read API response: %w", err)
 	}
 
-	return body, closeErr, nil
+	return body, nil
 }
 
 func waitForRetry(ctx context.Context, delay time.Duration) error {
@@ -249,8 +253,7 @@ func describeSlackError(code string) string {
 		return "unknown Slack error"
 	}
 
-	descriptions := maps.Clone(slackErrorDescriptions)
-	if description, ok := descriptions[code]; ok {
+	if description, ok := slackErrorDescriptions[code]; ok {
 		return description
 	}
 
