@@ -94,3 +94,38 @@ func TestShouldRejectMessageWhenTooLong(t *testing.T) {
 		t.Fatal("expected too-long error")
 	}
 }
+
+func TestShouldAllowMessageAtUnicodeLimit(t *testing.T) {
+	// Arrange: 4000 emoji = 4000 runes but 16000 bytes — must be accepted.
+	msg := make([]rune, 4000)
+	for i := range msg {
+		msg[i] = '\U0001F600' // 😀 (4 bytes per rune)
+	}
+
+	// Act
+	got, err := verifyMessage(string(msg))
+
+	// Assert
+	if err != nil {
+		t.Fatalf("expected no error for 4000 emoji, got %v", err)
+	}
+	if got != string(msg) {
+		t.Fatal("expected message unchanged")
+	}
+}
+
+func TestShouldRejectMessageWhenUnicodeLimitExceeded(t *testing.T) {
+	// Arrange: 4001 emoji = 4001 runes — must be rejected.
+	msg := make([]rune, 4001)
+	for i := range msg {
+		msg[i] = '\U0001F600' // 😀
+	}
+
+	// Act
+	_, err := verifyMessage(string(msg))
+
+	// Assert
+	if err == nil {
+		t.Fatal("expected too-long error for 4001 emoji")
+	}
+}

@@ -56,20 +56,12 @@ func (c *SlackChannelsCollector) Start(ctx context.Context) error {
 		return err
 	}
 
-	var collectedChannels []channels.SlackChannel
 	channelEnum := channels.ChannelEnumerator(ctx, c.token)
 	if err := enumerators.ForEach(channelEnum, func(channel channels.SlackChannel) error {
 		if err := slackapi.EnsureContextActive(ctx); err != nil {
 			return err
 		}
 
-		collectedChannels = append(collectedChannels, channel)
-		return nil
-	}); err != nil {
-		return fmt.Errorf("failed to enumerate channels: %w", err)
-	}
-
-	for _, channel := range collectedChannels {
 		entity := &entities.Channel{
 			Metadata:    types.EntityMetadata{Space: spaces.Channels},
 			ChannelRef:  channel.ID,
@@ -82,6 +74,10 @@ func (c *SlackChannelsCollector) Start(ctx context.Context) error {
 		if err := c.Emit(ctx, entity); err != nil {
 			return fmt.Errorf("failed to emit channel %s: %w", channel.ID, err)
 		}
+
+		return nil
+	}); err != nil {
+		return fmt.Errorf("failed to enumerate channels: %w", err)
 	}
 
 	return nil

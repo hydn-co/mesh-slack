@@ -30,3 +30,19 @@ func TestShouldRejectEmptyEmailEntryWhenResolvingMultiple(t *testing.T) {
 		t.Fatalf("expected empty entry error, got %v", err)
 	}
 }
+
+func TestShouldReturnEmptyImmediatelyWhenNoEmailsProvided(t *testing.T) {
+	// Arrange: no emails — function must return without any API call.
+	// (Token is intentionally invalid; a real API call would fail.)
+
+	// Act
+	ids, err := ResolveUserIDsByEmails(context.Background(), "invalid-token", []string{})
+
+	// Assert
+	if err != nil {
+		t.Fatalf("expected no error for empty input, got %v", err)
+	}
+	if len(ids) != 0 {
+		t.Fatalf("expected empty result, got %v", ids)
+	}
+}
