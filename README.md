@@ -6,14 +6,51 @@ emit catalog entities.
 
 ## Collectors
 
-### `slack_channel_message_collector`
+### `slack_users_collector`
 
-Collects messages from Slack channels and emits them as catalog entities in the
+Collects users from Slack workspaces and emits them as catalog entities in the
 `activity` space.
 
-### `slack_channel_message_post_provisioner`
+### `slack_channels_collector`
 
-Posts messages to Slack channels based on catalog events.
+Collects channels from Slack workspaces and emits them as catalog entities in the
+`activity` space.
+
+## Actions
+
+### `slack_channel_message_post_action`
+
+Posts messages to Slack channels. Configure the target channel in feature options and supply the message body as the runtime action payload.
+
+### `slack_user_message_post_action`
+
+Posts a direct message to one or more Slack users. Supply one to eight recipient email addresses in `emails` in feature options and the message body as the runtime action payload. One recipient opens a 1:1 DM; two to eight recipients open a group DM (MPIM).
+
+## Slack app setup
+
+All features require a Slack bot token (`xoxb-...`).
+
+1. Go to [api.slack.com/apps](https://api.slack.com/apps) and click **Create New App → From scratch**
+2. Name the app and select your workspace
+3. Under **OAuth & Permissions → Scopes → Bot Token Scopes**, add the required scopes for the features you intend to use:
+   - `chat:write` — post messages to channels
+   - `im:write` — open or resume 1:1 direct message conversations
+   - `mpim:write` — open or resume group direct message conversations
+   - `channels:read` — validate public channel access
+   - `groups:read` — validate private channel access
+   - `users:read` — view people in a workspace
+   - `users:read.email` - view email addresses of people in a workspace
+4. Click **Install to Workspace** at the top of the **OAuth & Permissions** page and authorize the app
+5. Copy the **Bot User OAuth Token** shown after installation
+
+The credential payload expected by all features:
+
+```json
+{"token": "xoxb-your-token-here"}
+```
+
+> **Note:** The bot must be invited to any channel before it can post or read from it.
+> Use `/invite @your-app-name` in the target channel.
 
 ## Requirements
 

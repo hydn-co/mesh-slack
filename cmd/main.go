@@ -1,9 +1,13 @@
 package main
 
 import (
+	"log"
+
 	"github.com/hydn-co/mesh-sdk/pkg/runner"
+	"github.com/hydn-co/mesh-slack/internal/actions"
 	"github.com/hydn-co/mesh-slack/internal/collectors"
-	"github.com/hydn-co/mesh-slack/internal/provisioners"
+	"github.com/hydn-co/mesh-slack/internal/options"
+	"github.com/hydn-co/mesh-slack/internal/payloads"
 )
 
 func main() {
@@ -12,31 +16,77 @@ func main() {
 
 func WithManifest() *runner.Manifest {
 	manifest := runner.CreateManifest(
-		"slack",
+		"mesh-slack",
 		"",
 		"Slack",
-		"A mesh integration for Slack.",
+		"Mesh integration with Slack",
 	)
 
-	manifest.RegisterFeature(
-		"slack_channel_message_collector",
-		"Slack Channel Message Collector",
-		"Collects messages from Slack channels and emits them as catalog entities.",
-		runner.Schema[*collectors.SlackChannelMessageCollectorOptions](),
-		runner.GetRequirements[*collectors.SlackChannelMessageCollectorOptions](),
+	// Register Collectors
+	if err := manifest.RegisterFeature(
+		"slack_users_collector",
+		"Slack Users Collector",
+		"Collects users from Slack workspaces and emits them as catalog entities.",
+		true,
+		runner.FeatureTypeCollector,
+		new(options.SlackUsersCollectorOptions),
+		nil,
+		runner.FeatureResumeBehaviorNone,
 		runner.APIKeyCredential,
-		runner.Factory[*collectors.SlackChannelMessageCollectorOptions](collectors.NewSlackChannelMessageCollector),
-	)
+		runner.Factory(collectors.NewSlackUsersCollector),
+	); err != nil {
+		log.Fatal(err)
+	}
 
-	manifest.RegisterFeature(
-		"slack_channel_message_post_provisioner",
-		"Slack Channel Message Post Provisioner",
+	if err := manifest.RegisterFeature(
+		"slack_channels_collector",
+		"Slack Channels Collector",
+		"Collects channels from Slack workspaces and emits them as catalog entities.",
+		true,
+		runner.FeatureTypeCollector,
+		new(options.SlackChannelsCollectorOptions),
+		nil,
+		runner.FeatureResumeBehaviorNone,
+		runner.APIKeyCredential,
+		runner.Factory(collectors.NewSlackChannelsCollector),
+	); err != nil {
+		log.Fatal(err)
+	}
+
+	// Register Actions
+	if err := manifest.RegisterFeature(
+		"slack_channel_message_post_action",
+		"Slack Channel Message Post Action",
 		"Posts messages to Slack channels based on catalog events.",
-		runner.Schema[*provisioners.SlackChannelMessagePostProvisionerOptions](),
-		runner.GetRequirements[*provisioners.SlackChannelMessagePostProvisionerOptions](),
+		false,
+		runner.FeatureTypeAction,
+		new(options.SlackChannelMessagePostActionOptions),
+		new(payloads.SlackChannelMessagePostPayload),
+		runner.FeatureResumeBehaviorNone,
 		runner.APIKeyCredential,
-		runner.Factory[*provisioners.SlackChannelMessagePostProvisionerOptions](provisioners.NewSlackChannelMessagePostProvisioner),
-	)
+		runner.Factory(actions.NewSlackChannelMessagePostAction),
+	); err != nil {
+		log.Fatal(err)
+	}
+
+	if err := manifest.RegisterFeature(
+		"slack_user_message_post_action",
+		"Slack User Message Post Action",
+		"Posts a direct message to a Slack user based on catalog events.",
+		false,
+		runner.FeatureTypeAction,
+		new(options.SlackUserMessagePostActionOptions),
+		new(payloads.SlackChannelMessagePostPayload),
+		runner.FeatureResumeBehaviorNone,
+		runner.APIKeyCredential,
+		runner.Factory(actions.NewSlackUserMessagePostAction),
+	); err != nil {
+		log.Fatal(err)
+	}
+
+	if err := manifest.Validate(); err != nil {
+		log.Fatal(err)
+	}
 
 	return manifest
 }
