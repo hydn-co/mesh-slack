@@ -18,7 +18,7 @@ func init() {
 // SlackChannelMessagePostActionOptions configures the Slack channel message post action.
 type SlackChannelMessagePostActionOptions struct {
 	// ChannelID is the Slack channel ID to post messages to.
-	ChannelID string `json:"channel_id" binding:"required"`
+	ChannelID string `json:"channel_id" title:"Channel ID" description:"The Slack channel ID to post the message to" binding:"required"`
 }
 
 func (o *SlackChannelMessagePostActionOptions) GetDiscriminator() string {
@@ -37,7 +37,7 @@ func (o *SlackChannelMessagePostActionOptions) GetRequirements() []string {
 type SlackUserMessagePostActionOptions struct {
 	// Emails contains one to eight recipient email addresses. A single email
 	// opens a 1:1 DM; two to eight open a group DM (MPIM).
-	Emails []string `json:"emails" binding:"required"`
+	Emails []string `json:"emails" title:"Recipient Emails" description:"One to eight recipient email addresses used to open a direct or group message" binding:"required"`
 }
 
 // UnmarshalJSON accepts both a JSON string and a JSON array for the emails field,
