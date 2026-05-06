@@ -11,7 +11,6 @@ import (
 	"github.com/hydn-co/mesh-sdk/pkg/connector"
 	"github.com/hydn-co/mesh-sdk/pkg/connectorutil"
 	"github.com/hydn-co/mesh-sdk/pkg/runner"
-	"github.com/hydn-co/mesh-slack/internal/credentials"
 	"github.com/hydn-co/mesh-slack/internal/options"
 	slackapi "github.com/hydn-co/mesh-slack/internal/slack_api"
 	"github.com/hydn-co/mesh-slack/internal/users"
@@ -36,7 +35,7 @@ func (c *SlackUsersCollector) Init(ctx context.Context) error {
 		return err
 	}
 
-	token, err := credentials.ExtractToken(c.GetCredentials())
+	token, err := connectorutil.ExtractAPIKey(c.GetCredentials())
 	if err != nil {
 		return fmt.Errorf("failed to extract bot token: %w", err)
 	}

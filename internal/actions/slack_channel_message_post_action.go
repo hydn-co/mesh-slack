@@ -10,7 +10,6 @@ import (
 	"github.com/hydn-co/mesh-sdk/pkg/connectorutil"
 	"github.com/hydn-co/mesh-sdk/pkg/runner"
 	"github.com/hydn-co/mesh-slack/internal/channels"
-	"github.com/hydn-co/mesh-slack/internal/credentials"
 	"github.com/hydn-co/mesh-slack/internal/options"
 	"github.com/hydn-co/mesh-slack/internal/payloads"
 	slackapi "github.com/hydn-co/mesh-slack/internal/slack_api"
@@ -49,7 +48,7 @@ func (p *SlackChannelMessagePostAction) Init(ctx context.Context) error {
 		return err
 	}
 
-	token, err := credentials.ExtractToken(p.GetCredentials())
+	token, err := connectorutil.ExtractAPIKey(p.GetCredentials())
 	if err != nil {
 		return fmt.Errorf("failed to extract bot token: %w", err)
 	}
