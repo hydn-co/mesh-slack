@@ -7,10 +7,10 @@ import (
 	"unicode/utf8"
 
 	"github.com/hydn-co/mesh-sdk/pkg/connector"
+	"github.com/hydn-co/mesh-sdk/pkg/connectorutil"
 	"github.com/hydn-co/mesh-sdk/pkg/runner"
 	"github.com/hydn-co/mesh-slack/internal/channels"
 	"github.com/hydn-co/mesh-slack/internal/credentials"
-	"github.com/hydn-co/mesh-slack/internal/helpers"
 	"github.com/hydn-co/mesh-slack/internal/options"
 	"github.com/hydn-co/mesh-slack/internal/payloads"
 	slackapi "github.com/hydn-co/mesh-slack/internal/slack_api"
@@ -19,9 +19,9 @@ import (
 // SlackChannelMessagePostAction posts messages to Slack channels.
 type SlackChannelMessagePostAction struct {
 	*connector.TypedFeatureContext[*options.SlackChannelMessagePostActionOptions, *payloads.SlackChannelMessagePostPayload]
-	token       string
-	message     string
-	initialized bool
+	token   string
+	message string
+	state   connectorutil.FeatureState
 }
 
 // NewSlackChannelMessagePostAction constructs a SlackChannelMessagePostAction.
@@ -64,7 +64,7 @@ func (p *SlackChannelMessagePostAction) Init(ctx context.Context) error {
 
 	p.token = token
 	p.message = message
-	p.initialized = true
+	p.state.MarkReady()
 
 	return nil
 }
@@ -75,7 +75,7 @@ func (p *SlackChannelMessagePostAction) Start(ctx context.Context) error {
 		return err
 	}
 
-	if err := helpers.CheckInitialized(p.initialized); err != nil {
+	if err := p.state.RequireReady(); err != nil {
 		return err
 	}
 
@@ -94,11 +94,11 @@ func (p *SlackChannelMessagePostAction) Stop(ctx context.Context) error {
 		return err
 	}
 
-	if err := helpers.CheckInitialized(p.initialized); err != nil {
+	if err := p.state.RequireReady(); err != nil {
 		return err
 	}
 
-	p.initialized = false
+	p.state.Reset()
 	p.token = ""
 	p.message = ""
 

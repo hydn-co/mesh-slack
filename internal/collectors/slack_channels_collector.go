@@ -9,10 +9,10 @@ import (
 	"github.com/hydn-co/mesh-sdk/pkg/catalog/spaces"
 	"github.com/hydn-co/mesh-sdk/pkg/catalog/types"
 	"github.com/hydn-co/mesh-sdk/pkg/connector"
+	"github.com/hydn-co/mesh-sdk/pkg/connectorutil"
 	"github.com/hydn-co/mesh-sdk/pkg/runner"
 	"github.com/hydn-co/mesh-slack/internal/channels"
 	"github.com/hydn-co/mesh-slack/internal/credentials"
-	"github.com/hydn-co/mesh-slack/internal/helpers"
 	"github.com/hydn-co/mesh-slack/internal/options"
 	slackapi "github.com/hydn-co/mesh-slack/internal/slack_api"
 )
@@ -21,8 +21,8 @@ import (
 // as catalog entities.
 type SlackChannelsCollector struct {
 	*connector.TypedFeatureContext[*options.SlackChannelsCollectorOptions, *connector.NoPayload]
-	token       string
-	initialized bool
+	token string
+	state connectorutil.FeatureState
 }
 
 // NewSlackChannelsCollector constructs a SlackChannelsCollector.
@@ -42,7 +42,7 @@ func (c *SlackChannelsCollector) Init(ctx context.Context) error {
 	}
 
 	c.token = token
-	c.initialized = true
+	c.state.MarkReady()
 	return nil
 }
 
@@ -52,7 +52,7 @@ func (c *SlackChannelsCollector) Start(ctx context.Context) error {
 		return err
 	}
 
-	if err := helpers.CheckInitialized(c.initialized); err != nil {
+	if err := c.state.RequireReady(); err != nil {
 		return err
 	}
 
@@ -89,11 +89,11 @@ func (c *SlackChannelsCollector) Stop(ctx context.Context) error {
 		return err
 	}
 
-	if err := helpers.CheckInitialized(c.initialized); err != nil {
+	if err := c.state.RequireReady(); err != nil {
 		return err
 	}
 
-	c.initialized = false
+	c.state.Reset()
 	c.token = ""
 	return nil
 }

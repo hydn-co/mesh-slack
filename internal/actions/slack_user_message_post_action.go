@@ -5,10 +5,10 @@ import (
 	"fmt"
 
 	"github.com/hydn-co/mesh-sdk/pkg/connector"
+	"github.com/hydn-co/mesh-sdk/pkg/connectorutil"
 	"github.com/hydn-co/mesh-sdk/pkg/runner"
 	"github.com/hydn-co/mesh-slack/internal/channels"
 	"github.com/hydn-co/mesh-slack/internal/credentials"
-	"github.com/hydn-co/mesh-slack/internal/helpers"
 	"github.com/hydn-co/mesh-slack/internal/options"
 	"github.com/hydn-co/mesh-slack/internal/payloads"
 	slackapi "github.com/hydn-co/mesh-slack/internal/slack_api"
@@ -21,7 +21,7 @@ type SlackUserMessagePostAction struct {
 	token       string
 	dmChannelID string
 	message     string
-	initialized bool
+	state       connectorutil.FeatureState
 }
 
 // NewSlackUserMessagePostAction constructs a SlackUserMessagePostAction.
@@ -70,7 +70,7 @@ func (p *SlackUserMessagePostAction) Init(ctx context.Context) error {
 	p.token = token
 	p.dmChannelID = dmChannelID
 	p.message = message
-	p.initialized = true
+	p.state.MarkReady()
 
 	return nil
 }
@@ -81,7 +81,7 @@ func (p *SlackUserMessagePostAction) Start(ctx context.Context) error {
 		return err
 	}
 
-	if err := helpers.CheckInitialized(p.initialized); err != nil {
+	if err := p.state.RequireReady(); err != nil {
 		return err
 	}
 
@@ -95,11 +95,11 @@ func (p *SlackUserMessagePostAction) Stop(ctx context.Context) error {
 		return err
 	}
 
-	if err := helpers.CheckInitialized(p.initialized); err != nil {
+	if err := p.state.RequireReady(); err != nil {
 		return err
 	}
 
-	p.initialized = false
+	p.state.Reset()
 	p.token = ""
 	p.dmChannelID = ""
 	p.message = ""

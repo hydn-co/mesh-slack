@@ -1,14 +1,8 @@
 package payloads
 
-import "github.com/fgrzl/json/polymorphic"
-
-func init() {
-	polymorphic.RegisterType[SlackChannelMessagePostPayload]()
-}
-
 // SlackChannelMessagePostPayload is the action payload schema for posting a message.
 type SlackChannelMessagePostPayload struct {
-	Message string `json:"message" binding:"required"`
+	Message string `json:"message" binding:"required" title:"Channel Message" description:"The message to send to the configured Slack channel"`
 }
 
 func (p *SlackChannelMessagePostPayload) GetDiscriminator() string {

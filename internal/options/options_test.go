@@ -33,7 +33,7 @@ func TestShouldExposeOptionTitlesInGeneratedSchema(t *testing.T) {
 
 	emailsSchema, ok := userProperties["emails"].(map[string]any)
 	require.True(t, ok)
-	require.Equal(t, "Recipient Emails", emailsSchema["title"])
+	require.Equal(t, "Recipient Email(s)", emailsSchema["title"])
 	require.Equal(t, "One to eight recipient email addresses used to open a direct or group message", emailsSchema["description"])
 }
 
