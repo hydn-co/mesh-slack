@@ -11,7 +11,7 @@ import (
 type SlackUserMessagePostActionOptions struct {
 	// Emails contains one to eight recipient email addresses. A single email
 	// opens a 1:1 DM; two to eight open a group DM (MPIM).
-	Emails []string `json:"emails" title:"Recipient Email(s)" description:"One to eight recipient email addresses used to open a direct or group message" binding:"required" x-lookup:"{\"entity-type\": \"accounts\", \"display-key\": \"primary_email\", \"submit-key\": \"primary_email\", \"form-input-type\": \"multi-select\"}"`
+	Emails []string `json:"emails" title:"Recipient Email(s)" description:"One to eight recipient email addresses used to open a direct or group message" binding:"required" x-lookup:"{\"entity-type\": \"accounts\", \"display-key\": \"primary_email.address\", \"submit-key\": \"primary_email.address\", \"form-input-type\": \"multi-select\"}"`
 }
 
 // UnmarshalJSON accepts both a JSON string and a JSON array for the emails field,
