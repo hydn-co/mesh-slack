@@ -26,8 +26,8 @@ func WithManifest() *runner.Manifest {
 	// Register Collectors
 	manifest.MustRegisterFeature(
 		"slack_users_collector",
-		"Slack Users Collector",
-		"Collects users from Slack workspaces and emits them as catalog entities.",
+		"Collect Users",
+		"Collects users from Slack workspaces.",
 		runner.FeatureSchedulable,
 		runner.FeatureTypeCollector,
 		new(options.SlackUsersCollectorOptions),
@@ -39,8 +39,8 @@ func WithManifest() *runner.Manifest {
 
 	manifest.MustRegisterFeature(
 		"slack_channels_collector",
-		"Slack Channels Collector",
-		"Collects channels from Slack workspaces and emits them as catalog entities.",
+		"Collect Channels",
+		"Collects channels from Slack workspaces.",
 		runner.FeatureSchedulable,
 		runner.FeatureTypeCollector,
 		new(options.SlackChannelsCollectorOptions),
@@ -53,8 +53,8 @@ func WithManifest() *runner.Manifest {
 	// Register Actions
 	manifest.MustRegisterFeature(
 		"slack_channel_message_post_action",
-		"Slack Channel Message Post Action",
-		"Posts messages to Slack channels based on catalog events.",
+		"Send Message To Channel",
+		"Posts a message to a Slack channel.",
 		runner.FeatureUnschedulable,
 		runner.FeatureTypeAction,
 		new(options.SlackChannelMessagePostActionOptions),
@@ -66,8 +66,8 @@ func WithManifest() *runner.Manifest {
 
 	manifest.MustRegisterFeature(
 		"slack_user_message_post_action",
-		"Slack User Message Post Action",
-		"Posts a direct message to a Slack user based on catalog events.",
+		"Send Message To Users",
+		"Posts a direct message to a single user chat or up to 8 users in a group chat.",
 		runner.FeatureUnschedulable,
 		runner.FeatureTypeAction,
 		new(options.SlackUserMessagePostActionOptions),
