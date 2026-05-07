@@ -5,7 +5,7 @@ import "github.com/hydn-co/mesh-sdk/pkg/catalog/spaces"
 // SlackChannelMessagePostActionOptions configures the Slack channel message post action.
 type SlackChannelMessagePostActionOptions struct {
 	// ChannelID is the Slack channel ID to post messages to.
-	ChannelID string `json:"channel_id" title:"Channel ID" description:"The Slack channel ID to post the message to" binding:"required"  x-lookup:"{\"entity-type\": \"channels\", \"display-key\": \"name\", \"submit-key\": \"channel_ref\", \"form-input-type\": \"select\"}"`
+	ChannelID string `json:"channel_id" title:"Channel" description:"The Slack channel to post the message to" binding:"required"  x-lookup:"{\"entity-type\": \"channels\", \"display-key\": \"name\", \"submit-key\": \"channel_ref\", \"form-input-type\": \"select\"}"`
 }
 
 func (o *SlackChannelMessagePostActionOptions) GetDiscriminator() string {
