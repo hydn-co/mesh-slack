@@ -2,7 +2,7 @@ package payloads
 
 // SlackChannelMessagePostPayload is the action payload schema for posting a message.
 type SlackChannelMessagePostPayload struct {
-	Message string `json:"message" binding:"required" title:"Channel Message" description:"The message to send to the configured Slack channel"`
+	Message string `json:"message" binding:"required" title:"Message" description:"The message to send"`
 }
 
 func (p *SlackChannelMessagePostPayload) GetDiscriminator() string {
