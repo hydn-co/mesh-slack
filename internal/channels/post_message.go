@@ -21,10 +21,10 @@ type postMessageMessage struct {
 
 // PostMessageResult captures the useful fields returned by Slack chat.postMessage.
 type PostMessageResult struct {
-	slackapi.ResponseEnvelope
-	Channel string             `json:"channel"`
-	TS      string             `json:"ts"`
-	Message postMessageMessage `json:"message"`
+	Message                   postMessageMessage `json:"message"`
+	Channel                   string             `json:"channel"`
+	TS                        string             `json:"ts"`
+	slackapi.ResponseEnvelope                    //nolint:embeddedstructfieldcheck
 }
 
 // PostMessage sends a plain text message via Slack's chat.postMessage API.

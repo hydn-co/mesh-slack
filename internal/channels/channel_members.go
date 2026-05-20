@@ -11,8 +11,8 @@ import (
 
 type ListMembersResult struct {
 	slackapi.ResponseEnvelope
-	Members          []string         `json:"members"`
 	ResponseMetadata responseMetadata `json:"response_metadata"`
+	Members          []string         `json:"members"`
 }
 
 // ListMembers lists the member account IDs for a Slack channel.

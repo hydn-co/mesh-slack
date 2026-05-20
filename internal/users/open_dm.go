@@ -18,8 +18,8 @@ type openDMChannel struct {
 }
 
 type openDMResponse struct {
-	slackapi.ResponseEnvelope
-	Channel openDMChannel `json:"channel"`
+	Channel                   openDMChannel `json:"channel"`
+	slackapi.ResponseEnvelope               //nolint:embeddedstructfieldcheck
 }
 
 // OpenDM opens (or resolves) a direct message or group DM channel for the given

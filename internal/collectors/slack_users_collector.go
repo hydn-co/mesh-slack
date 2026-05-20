@@ -11,6 +11,7 @@ import (
 	"github.com/hydn-co/mesh-sdk/pkg/connector"
 	"github.com/hydn-co/mesh-sdk/pkg/connectorutil"
 	"github.com/hydn-co/mesh-sdk/pkg/runner"
+
 	"github.com/hydn-co/mesh-slack/internal/options"
 	slackapi "github.com/hydn-co/mesh-slack/internal/slack_api"
 	"github.com/hydn-co/mesh-slack/internal/users"
@@ -25,7 +26,9 @@ type SlackUsersCollector struct {
 }
 
 // NewSlackUsersCollector constructs a SlackUsersCollector.
-func NewSlackUsersCollector(ctx *connector.TypedFeatureContext[*options.SlackUsersCollectorOptions, *connector.NoPayload]) runner.Feature {
+func NewSlackUsersCollector(
+	ctx *connector.TypedFeatureContext[*options.SlackUsersCollectorOptions, *connector.NoPayload],
+) runner.Feature {
 	return &SlackUsersCollector{TypedFeatureContext: ctx}
 }
 

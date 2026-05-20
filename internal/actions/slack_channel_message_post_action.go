@@ -9,6 +9,7 @@ import (
 	"github.com/hydn-co/mesh-sdk/pkg/connector"
 	"github.com/hydn-co/mesh-sdk/pkg/connectorutil"
 	"github.com/hydn-co/mesh-sdk/pkg/runner"
+
 	"github.com/hydn-co/mesh-slack/internal/channels"
 	"github.com/hydn-co/mesh-slack/internal/options"
 	"github.com/hydn-co/mesh-slack/internal/payloads"
@@ -24,7 +25,9 @@ type SlackChannelMessagePostAction struct {
 }
 
 // NewSlackChannelMessagePostAction constructs a SlackChannelMessagePostAction.
-func NewSlackChannelMessagePostAction(ctx *connector.TypedFeatureContext[*options.SlackChannelMessagePostActionOptions, *payloads.SlackChannelMessagePostPayload]) runner.Feature {
+func NewSlackChannelMessagePostAction(
+	ctx *connector.TypedFeatureContext[*options.SlackChannelMessagePostActionOptions, *payloads.SlackChannelMessagePostPayload],
+) runner.Feature {
 	return &SlackChannelMessagePostAction{TypedFeatureContext: ctx}
 }
 

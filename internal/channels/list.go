@@ -20,15 +20,15 @@ type slackChannelPurpose struct {
 type SlackChannel struct {
 	ID         string              `json:"id"`
 	Name       string              `json:"name"`
+	Purpose    slackChannelPurpose `json:"purpose"`
 	IsArchived bool                `json:"is_archived"`
 	IsPrivate  bool                `json:"is_private"`
-	Purpose    slackChannelPurpose `json:"purpose"`
 }
 
 type ListChannelsResult struct {
 	slackapi.ResponseEnvelope
-	Channels         []SlackChannel   `json:"channels"`
 	ResponseMetadata responseMetadata `json:"response_metadata"`
+	Channels         []SlackChannel   `json:"channels"`
 }
 
 // ListChannels lists Slack channels visible to the bot token.

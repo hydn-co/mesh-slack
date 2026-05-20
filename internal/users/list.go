@@ -23,21 +23,21 @@ type slackUserProfile struct {
 }
 
 type SlackUser struct {
+	Profile           slackUserProfile `json:"profile"`
 	ID                string           `json:"id"`
 	Name              string           `json:"name"`
+	RealName          string           `json:"real_name"`
 	Deleted           bool             `json:"deleted"`
 	IsBot             bool             `json:"is_bot"`
 	IsAppUser         bool             `json:"is_app_user"`
 	IsRestricted      bool             `json:"is_restricted"`
 	IsUltraRestricted bool             `json:"is_ultra_restricted"`
-	RealName          string           `json:"real_name"`
-	Profile           slackUserProfile `json:"profile"`
 }
 
 type ListUsersResult struct {
 	slackapi.ResponseEnvelope
-	Members          []SlackUser      `json:"members"`
 	ResponseMetadata responseMetadata `json:"response_metadata"`
+	Members          []SlackUser      `json:"members"`
 }
 
 // ListUsers lists Slack workspace users visible to the bot token.

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log/slog"
@@ -12,6 +13,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/hydn-co/mesh-sdk/pkg/connectorutil"
 )
 
 var slackErrorDescriptions = map[string]string{
@@ -28,8 +31,8 @@ var slackErrorDescriptions = map[string]string{
 }
 
 type ResponseEnvelope struct {
-	OK    bool   `json:"ok"`
 	Error string `json:"error"`
+	OK    bool   `json:"ok"`
 }
 
 const maxRateLimitRetries = 5
@@ -87,77 +90,110 @@ func Do(req *http.Request, response any) error {
 		return err
 	}
 
-	for attempt := 0; attempt <= maxRateLimitRetries; attempt++ {
-		resp, err := doRequestAttempt(req, attempt)
+	attempt := 0
+	var resp *http.Response
+	if err := connectorutil.RetryOperation(req.Context(), connectorutil.RetryPolicy{
+		ShouldRetry: isSlackRateLimitError,
+		BaseDelay:   1 * time.Second,
+		MaxDelay:    60 * time.Second,
+		MaxRetries:  maxRateLimitRetries,
+	}, func(stepCtx context.Context) (connectorutil.RetryOperationResult, error) {
+		respAttempt, err := doRequestAttempt(req, attempt)
+		attempt++
 		if err != nil {
-			if cerr := req.Context().Err(); cerr != nil {
-				return fmt.Errorf("operation canceled: %w", cerr)
+			if cerr := stepCtx.Err(); cerr != nil {
+				return connectorutil.RetryOperationResult{}, fmt.Errorf("operation canceled: %w", cerr)
 			}
-			return fmt.Errorf("API request failed: %w", err)
+			return connectorutil.RetryOperationResult{}, connectorutil.NewRetryableStatusError(
+				0,
+				fmt.Sprintf("API request failed: %v", err),
+				err,
+			)
 		}
 
-		body, readErr := readResponseBody(req.Context(), resp)
+		resp = respAttempt
+
+		body, readErr := readResponseBody(stepCtx, resp)
 		if readErr != nil {
-			return readErr
+			return connectorutil.RetryOperationResult{}, readErr
 		}
 
-		if err := EnsureContextActive(req.Context()); err != nil {
-			return err
+		if err := EnsureContextActive(stepCtx); err != nil {
+			return connectorutil.RetryOperationResult{}, err
 		}
 
 		var envelope ResponseEnvelope
 		envelopeErr := json.Unmarshal(body, &envelope)
 
 		if resp.StatusCode == http.StatusTooManyRequests {
-			if attempt == maxRateLimitRetries {
-				retryAfter := parseRetryAfterSeconds(resp.Header.Get("Retry-After"))
-				if retryAfter > 0 {
-					return fmt.Errorf("slack API %s was rate limited after %d retries; retry after %d seconds", slackMethodName(req), maxRateLimitRetries, retryAfter)
-				}
-				return fmt.Errorf("slack API %s was rate limited after %d retries", slackMethodName(req), maxRateLimitRetries)
-			}
-
-			if err := waitForRetry(req.Context(), rateLimitDelay(resp.Header.Get("Retry-After"), attempt)); err != nil {
-				return err
-			}
-
-			continue
+			retryAfter := rateLimitDelay(resp.Header.Get("Retry-After"), attempt-1)
+			return connectorutil.RetryOperationResult{
+					RetryAfter: retryAfter,
+				}, connectorutil.NewRetryableStatusError(
+					resp.StatusCode,
+					fmt.Sprintf("slack API %s was rate limited", slackMethodName(req)),
+					nil,
+				)
 		}
 
 		if resp.StatusCode < http.StatusOK || resp.StatusCode >= http.StatusMultipleChoices {
 			if envelopeErr == nil && envelope.Error != "" {
-				return fmt.Errorf("slack API %s failed with status %d: %s", slackMethodName(req), resp.StatusCode, describeSlackError(envelope.Error))
+				return connectorutil.RetryOperationResult{}, fmt.Errorf(
+					"slack API %s failed with status %d: %s",
+					slackMethodName(req),
+					resp.StatusCode,
+					describeSlackError(envelope.Error),
+				)
 			}
 
 			trimmedBody := strings.TrimSpace(string(body))
 			if trimmedBody != "" {
-				return fmt.Errorf("slack API %s failed with status %d: %s", slackMethodName(req), resp.StatusCode, trimmedBody)
+				return connectorutil.RetryOperationResult{}, fmt.Errorf(
+					"slack API %s failed with status %d: %s",
+					slackMethodName(req),
+					resp.StatusCode,
+					trimmedBody,
+				)
 			}
 
-			return fmt.Errorf("slack API %s failed with status %d", slackMethodName(req), resp.StatusCode)
+			return connectorutil.RetryOperationResult{}, fmt.Errorf(
+				"slack API %s failed with status %d",
+				slackMethodName(req),
+				resp.StatusCode,
+			)
 		}
 
 		if envelopeErr != nil {
-			return fmt.Errorf("failed to parse API response: %w", envelopeErr)
+			return connectorutil.RetryOperationResult{}, fmt.Errorf("failed to parse API response: %w", envelopeErr)
 		}
 
 		if !envelope.OK {
 			if envelope.Error == "" {
-				return fmt.Errorf("slack API %s failed", slackMethodName(req))
+				return connectorutil.RetryOperationResult{}, fmt.Errorf("slack API %s failed", slackMethodName(req))
 			}
-			return fmt.Errorf("slack API %s failed: %s", slackMethodName(req), describeSlackError(envelope.Error))
+			return connectorutil.RetryOperationResult{}, fmt.Errorf(
+				"slack API %s failed: %s",
+				slackMethodName(req),
+				describeSlackError(envelope.Error),
+			)
 		}
 
 		if response != nil {
 			if err := json.Unmarshal(body, response); err != nil {
-				return fmt.Errorf("failed to parse typed API response: %w", err)
+				return connectorutil.RetryOperationResult{}, fmt.Errorf("failed to parse typed API response: %w", err)
 			}
 		}
 
-		return nil
+		return connectorutil.RetryOperationResult{}, nil
+	}); err != nil {
+		return err
 	}
 
-	return fmt.Errorf("slack API %s failed unexpectedly", slackMethodName(req))
+	if resp == nil {
+		return fmt.Errorf("slack API %s failed unexpectedly", slackMethodName(req))
+	}
+
+	return nil
 }
 
 func doRequestAttempt(req *http.Request, attempt int) (*http.Response, error) {
@@ -197,28 +233,25 @@ func readResponseBody(ctx context.Context, resp *http.Response) ([]byte, error) 
 	return body, nil
 }
 
-func waitForRetry(ctx context.Context, delay time.Duration) error {
-	if delay <= 0 {
-		delay = time.Second
-	}
-
-	timer := time.NewTimer(delay)
-	defer timer.Stop()
-
-	select {
-	case <-ctx.Done():
-		return fmt.Errorf("operation canceled: %w", ctx.Err())
-	case <-timer.C:
-		return nil
-	}
-}
-
 func rateLimitDelay(value string, attempt int) time.Duration {
 	if retryAfter := parseRetryAfterSeconds(value); retryAfter > 0 {
 		return time.Duration(retryAfter) * time.Second
 	}
 
 	return time.Duration(1<<attempt) * time.Second
+}
+
+func isSlackRateLimitError(err error) bool {
+	if err == nil {
+		return false
+	}
+
+	var statusErr connectorutil.StatusCoder
+	if !errors.As(err, &statusErr) {
+		return false
+	}
+
+	return statusErr.StatusCode() == http.StatusTooManyRequests
 }
 
 func parseRetryAfterSeconds(value string) int {

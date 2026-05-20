@@ -6,11 +6,15 @@ import (
 
 	"github.com/fgrzl/json/polymorphic"
 	"github.com/hydn-co/mesh-sdk/pkg/connector"
+
 	"github.com/hydn-co/mesh-slack/internal/options"
 	"github.com/hydn-co/mesh-slack/internal/payloads"
 )
 
-func newTestUserAction(opts *options.SlackUserMessagePostActionOptions, p *payloads.SlackChannelMessagePostPayload) *SlackUserMessagePostAction {
+func newTestUserAction(
+	opts *options.SlackUserMessagePostActionOptions,
+	p *payloads.SlackChannelMessagePostPayload,
+) *SlackUserMessagePostAction {
 	cfg := &connector.Configuration{
 		Options: polymorphic.NewEnvelope(opts),
 	}

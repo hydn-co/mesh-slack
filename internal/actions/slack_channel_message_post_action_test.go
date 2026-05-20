@@ -6,11 +6,15 @@ import (
 
 	"github.com/fgrzl/json/polymorphic"
 	"github.com/hydn-co/mesh-sdk/pkg/connector"
+
 	"github.com/hydn-co/mesh-slack/internal/options"
 	"github.com/hydn-co/mesh-slack/internal/payloads"
 )
 
-func newTestAction(opts *options.SlackChannelMessagePostActionOptions, p *payloads.SlackChannelMessagePostPayload) *SlackChannelMessagePostAction {
+func newTestAction(
+	opts *options.SlackChannelMessagePostActionOptions,
+	p *payloads.SlackChannelMessagePostPayload,
+) *SlackChannelMessagePostAction {
 	cfg := &connector.Configuration{
 		Options: polymorphic.NewEnvelope(opts),
 	}
@@ -59,7 +63,6 @@ func TestShouldTrimMessageWhenWhitespacePresent(t *testing.T) {
 
 	// Act
 	got, err := verifyMessage(input)
-
 	// Assert
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -104,7 +107,6 @@ func TestShouldAllowMessageAtUnicodeLimit(t *testing.T) {
 
 	// Act
 	got, err := verifyMessage(string(msg))
-
 	// Assert
 	if err != nil {
 		t.Fatalf("expected no error for 4000 emoji, got %v", err)

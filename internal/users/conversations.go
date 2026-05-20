@@ -15,8 +15,8 @@ type SlackUserConversation struct {
 
 type ListUserConversationsResult struct {
 	slackapi.ResponseEnvelope
-	Channels         []SlackUserConversation `json:"channels"`
 	ResponseMetadata responseMetadata        `json:"response_metadata"`
+	Channels         []SlackUserConversation `json:"channels"`
 }
 
 // ListUserConversations lists channels for a specific Slack user.

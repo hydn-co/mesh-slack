@@ -37,7 +37,6 @@ func TestShouldReturnEmptyImmediatelyWhenNoEmailsProvided(t *testing.T) {
 
 	// Act
 	ids, err := ResolveUserIDsByEmails(context.Background(), "invalid-token", []string{})
-
 	// Assert
 	if err != nil {
 		t.Fatalf("expected no error for empty input, got %v", err)

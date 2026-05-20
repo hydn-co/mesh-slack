@@ -5,6 +5,7 @@ import (
 
 	"github.com/hydn-co/mesh-sdk/pkg/connector"
 	"github.com/hydn-co/mesh-sdk/pkg/runner"
+
 	"github.com/hydn-co/mesh-slack/internal/actions"
 	"github.com/hydn-co/mesh-slack/internal/collectors"
 	"github.com/hydn-co/mesh-slack/internal/options"
