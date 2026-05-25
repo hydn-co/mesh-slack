@@ -5,7 +5,7 @@ go 1.25.6
 require (
 	github.com/fgrzl/enumerators v1.0.1
 	github.com/fgrzl/json v1.0.1
-	github.com/hydn-co/mesh-sdk v0.2.64
+	github.com/hydn-co/mesh-sdk v0.2.65
 	github.com/stretchr/testify v1.11.1
 )
 
